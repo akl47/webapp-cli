@@ -1,0 +1,26 @@
+{
+  "name": "webapp-cli",
+  "version": "1.0.0",
+  "description": "A command line interface for quickly adding models to angular/sequelize webapps",
+  "main": "src/index.js",
+  "bin": {
+    "webapp": "bin/webapp"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/akl47/webapp-cli.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/akl47/webapp-cli/issues"
+  },
+  "homepage": "https://github.com/akl47/webapp-cli#readme",
+  "dependencies": {
+    "arg": "^5.0.0",
+    "esm": "^3.2.25"
+  }
+}

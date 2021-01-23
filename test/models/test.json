@@ -1,0 +1,12 @@
+{
+    "push":true,
+    "model": {
+        "id": true,
+
+        "activeFlag": true
+    },
+    "api": {
+        "path": "/TEMPLATE/"
+    },
+    "seed": {}
+}
