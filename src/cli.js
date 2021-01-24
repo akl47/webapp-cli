@@ -2,28 +2,55 @@ let fs = require('fs')
 export function cli(args) {
     // TODO check that you are in the right directory
     if(args[2]=='--new'||args[2]=='-n') {
-        args.slice(3).forEach(name => {
-            newTemplateModel(name);
+        args.slice(3).forEach(model => {
+            newTemplateModel(model);
         });
     }else if ((args[2]=='--push'||args[2]=='-p')) {
         pushModels()
     }
 }
 
-function newTemplateModel(name) {
+function newTemplateModel(model) {
+    // Split group/model name
+    let modelName = model.split('/')[1]
+    modelName = modelName.charAt(0).toUpperCase() + modelName.slice(1)
+    let groupName = model.split('/')[0].toLowerCase()
+
     //Check if models folder exists (if not add it)
     const dir = process.cwd() + '/models'
     if (!fs.existsSync(dir)){
         fs.mkdirSync(dir);
     }
+    const groupDir = process.cwd() + '/models/' + groupName
+    if (!fs.existsSync(groupDir)){
+        fs.mkdirSync(groupDir);
+    }
     //Create new blank model with name
-    let name = name.charAt(0).toUpperCase() + name.slice(1)
-    const file = dir+'/'+name+'.json'
-    const template = __dirname+'/template.json'
+
+    const file = groupDir+'/'+modelName+'.json'
+    const template =
+    `{
+        "push":true,
+        "name":"${modelName}",
+        "group":"${groupName}",
+        "model": {
+            "id": true,
+    
+            "activeFlag": true
+        },
+        "api": {
+            "get":true,
+            "getID":true,
+            "put":true,
+            "post":true
+        },
+        "seed": {}
+    }`
+    
     if(!fs.existsSync(file)) {
-        fs.copyFile(template, file, function (err) {
+        fs.writeFile(file, template, function (err) {
             if (err) throw err;
-            console.log('New Model: '+name+'.json Saved!');
+            console.log('New Model: '+groupName+'/'+modelName+'.json Saved!');
           });
     }
 }
@@ -46,7 +73,7 @@ function pushModels() {
     //frontend/src/app/services/group/model.service.ts
 }
 
-function createBackendAPI() {
+function createBackendAPI(modelName) {
     //Create Routes.js
     const routes = 
     `var router = require('express').Router();

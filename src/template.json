@@ -1,12 +1,17 @@
 {
     "push":true,
+    "name":"NAME",
+    "group":"GROUP",
     "model": {
         "id": true,
 
         "activeFlag": true
     },
     "api": {
-        "path": "/TEMPLATE/"
+        "get":true,
+        "getID":true,
+        "put":true,
+        "post":true
     },
     "seed": {}
 }
