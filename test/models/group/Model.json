@@ -4,7 +4,12 @@
         "group":"group",
         "model": {
             "id": true,
-    
+            "name": {
+                "type":"string",
+                "allowNull":true,
+                "unique":true,
+                "default":"steve"
+            },
             "activeFlag": true
         },
         "api": {

@@ -1,3 +1,11 @@
+/test/**
+!/test/backend/api/.blank
+!/test/backend/migrations/.blank
+!/test/backend/models/.blank
+!/test/frontend/src/app/.blank
+!/test/models/*
+
+
 # Logs
 logs
 *.log

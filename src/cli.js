@@ -59,34 +59,41 @@ function pushModels() {
         const groupDir = dir + '/' + group
         let files = fs.readdirSync(groupDir)
         files.forEach(file=> {
-            console.log('Group: ', group, " | File: ", file)
+            console.group('Group: ', group, " | File: ", file)
             const fileData = fs.readFileSync(groupDir+'/'+file,'utf8')
             const jsonFile = JSON.parse(fileData)
             // Backend api
-            createBackendAPI(jsonFile.name, jsonFile.group)
+            //createBackendAPI(jsonFile)
             // Backend Model
-            //backend/models/group/model.js
+            //createBackendModel(jsonFile)
             // Backend Migration
-            //backend/migrations/time-create-model.js
+            //createBackendMigration(jsonFile)
             // Backend Seeds
+            // TODO Create Backend Seeds
             //backend/seeders/time-seed-model.js
 
             //Frontend Model
+            createFrontendModel(jsonFile)
             //frontend/src/app/models/group/model.model.ts
             //Frontend Services
             //frontend/src/app/services/group/model.service.ts
+            console.groupEnd()
         })
         
     })
     
 }
 
-function createBackendAPI(modelName, groupName) {
-    modelName = uncapitalize(modelName)
+function createBackendAPI(jsonFile) {
+    // TODO toggle on/off api end points in model file
+    const groupName = jsonFile.group
+    const modelName = uncapitalize(jsonFile.name)
     const ModelName = capitalize(modelName)
     const ModelNamePlural = inflection.pluralize(ModelName)
     const modelNamePlural = inflection.pluralize(modelName)
     //backend/api/group/model/controler
+    // Create api folder
+    makeDir(process.cwd() + '/backend/api/')
     // Create group folder
     const groupDir = process.cwd() + '/backend/api/' + groupName
     makeDir(groupDir)
@@ -160,10 +167,260 @@ exports.create${ModelName} = (req,res,next) => {
 
 `
     fs.writeFileSync(modelDir+'/controller.js',controller)
+    console.log('Backend API: Done')
 }
 
-fucnction createBackendModel(modelName, groupName) {
-    
+function createBackendModel(jsonFile) {
+    const groupName = jsonFile.group
+    const modelName = uncapitalize(jsonFile.name)
+    const ModelName = capitalize(modelName)
+    const ModelNamePlural = inflection.pluralize(ModelName)
+    const modelNamePlural = inflection.pluralize(modelName)
+    //backend/models/group/model.js
+    // Create api folder
+    makeDir(process.cwd() + '/backend/models/')
+    // Create group folder
+    const groupDir = process.cwd() + '/backend/models/' + groupName
+    makeDir(groupDir)
+    // create model folder
+    const modelDir = groupDir + '/' + modelName
+    makeDir(modelDir)
+
+    const modelObject = jsonFile.model
+
+    let model = 
+    `'use strict';
+const { Model } = require('sequelize');
+module.exports = (sequelize, DataTypes) => {
+    class ${ModelName} extends Model {
+        static associate(models) {
+            /*${ModelName}.belongsTo(models.TransactionCategoryGroup, {
+            foreignKey: 'transactionCategoryGroupID',
+            onDelete: 'CASCADE'
+            })*/        
+        }
+    };
+    ${ModelName}.init({
+    `
+    for (const [key, value] of Object.entries(modelObject)) {
+        if(key == 'id' && value) {
+            model += 
+            `    id: {
+            allowNull: false,
+            autoIncrement: true,
+            primaryKey: true,
+            type: DataTypes.INTEGER
+        },
+        `
+        } else if (key=='activeFlag' && value) {
+            model += 
+            `activeFlag: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true
+        },
+        `
+        } else {
+            model += 
+            `${key}: {
+            `
+            for (const [subkey, subvalue] of Object.entries(value)) {
+                switch(subkey) {
+                    case 'type':
+                        model += `type: DataTypes.${subvalue.toUpperCase()},
+            `   
+                        break
+                    case 'allowNull':
+                        model += `allowNull: ${subvalue},
+            `
+                        break
+                    case 'unique':
+                        model += `unique: ${subvalue},
+            `
+                        break
+                    case 'default':
+                        if(typeof subvalue == 'string') {
+                            model += `defaultValue: '${subvalue}',
+        `
+                        }  else {
+                            model += `defaultValue: ${subvalue},
+        `
+                        }
+                        
+                        break
+                }
+            }
+            model += `},
+        `
+            
+        }
+      }
+    model +=
+    `createdAt: {
+            allowNull: false,
+            type: DataTypes.DATE
+        },
+        updatedAt: {
+            allowNull: false,
+            type: DataTypes.DATE
+        }
+    }, {
+        sequelize,
+        modelName: '${ModelName}',
+    });
+    return ${ModelName};
+};`
+    fs.writeFileSync(modelDir+`/${modelName}.js`,model)
+    console.log('Backend Model: Done')
+}
+
+function createBackendMigration(jsonFile) {
+    //backend/migrations/time-create-model.js
+    const groupName = jsonFile.group
+    const modelName = uncapitalize(jsonFile.name)
+    const ModelName = capitalize(modelName)
+    const ModelNamePlural = inflection.pluralize(ModelName)
+    const modelNamePlural = inflection.pluralize(modelName)
+    const modelObject = jsonFile.model
+
+    // create migrations folder
+    const migrationsDir = process.cwd() + '/backend/migrations'
+    makeDir(migrationsDir)
+
+    let migration = 
+    `'use strict';
+module.exports = {
+    up: async (queryInterface, Sequelize) => {
+    await queryInterface.createTable('${ModelNamePlural}', {
+        `
+
+    for (const [key, value] of Object.entries(modelObject)) {
+        if(key == 'id' && value) {
+            migration += 
+            `id: {
+            allowNull: false,
+            autoIncrement: true,
+            primaryKey: true,
+            type: Sequelize.INTEGER
+        },
+        `
+        } else if (key=='activeFlag' && value) {
+            migration += 
+            `activeFlag: {
+            type: Sequelize.BOOLEAN,
+            allowNull: false,
+            defaultValue: true
+        },
+        `
+        } else {
+            migration += 
+            `${key}: {
+            `
+            for (const [subkey, subvalue] of Object.entries(value)) {
+                switch(subkey) {
+                    case 'type':
+                        migration += `type: Sequelize.${subvalue.toUpperCase()},
+            `   
+                        break
+                    case 'allowNull':
+                        migration += `allowNull: ${subvalue},
+            `
+                        break
+                    case 'unique':
+                        migration += `unique: ${subvalue},
+            `
+                        break
+                    case 'default':
+                        if(typeof subvalue == 'string') {
+                            migration += `defaultValue: '${subvalue}',
+        `
+                        }  else {
+                            migration += `defaultValue: ${subvalue},
+        `
+                        }
+                        
+                        break
+                }
+            }
+            migration += `},
+        `
+            
+        }
+      }
+
+
+
+
+    migration += 
+    `createdAt: {
+            allowNull: false,
+            type: Sequelize.DATE
+        },
+        updatedAt: {
+            allowNull: false,
+            type: Sequelize.DATE
+        }
+    });
+    },
+    down: async (queryInterface, Sequelize) => {
+        await queryInterface.dropTable('${ModelNamePlural}');
+    }
+};`
+    const d = new Date();
+    const t = ''+d.getFullYear()+d.getMonth()+d.getDate()+d.getHours()+d.getMinutes()+d.getSeconds()
+
+
+    fs.writeFileSync(migrationsDir+`/${t}-create-${modelName}.js`,migration)
+    console.log('Backend Migration: Done')
+
+}
+
+function createFrontendModel(jsonFile) {
+    //backend/migrations/time-create-model.js
+    const groupName = jsonFile.group
+    const modelName = uncapitalize(jsonFile.name)
+    const ModelName = capitalize(modelName)
+    const ModelNamePlural = inflection.pluralize(ModelName)
+    const modelNamePlural = inflection.pluralize(modelName)
+    const modelObject = jsonFile.model
+
+    // create models folder
+    const modelsDir = process.cwd() + '/frontend/src/app/models'
+    makeDir(modelsDir)
+
+    // create group folder
+    const groupDir = process.cwd() + '/frontend/src/app/models/' + groupName
+    makeDir(groupDir)
+
+    let model = 
+    `export class ${ModelName} {`
+
+    for (const [key, value] of Object.entries(modelObject)) {
+        model += `
+        ${key}?:`
+        if (key == 'id') {
+            model += 'number;'
+        } else if (key == 'activeFlag') {
+            model += 'boolean;'
+        } else {
+            if(typeof value == 'object') {
+                for (const [subkey, subvalue] of Object.entries(value)) {
+                    if(subkey == 'type') {
+                        model += translateType(subvalue)
+                    }
+                }
+            } else {
+                model += translateType(value)
+            }
+
+        }
+    }
+    model += 
+    `
+}`
+
+    fs.writeFileSync(groupDir+`/${modelName}.model.ts`,model)
+    console.log('Frontend Model: Done')
 }
 function capitalize(str) {
     return str.substring( 0, 1 ).toUpperCase() + str.substring( 1 );
@@ -177,5 +434,15 @@ function uncapitalize(str) {
 function makeDir(dir) {
     if (!fs.existsSync(dir)){
         fs.mkdirSync(dir);
+    }
+}
+
+function translateType(value) {
+    if (value.toLowerCase() == 'integer' || value.toLowerCase() == 'decimal') {
+        return 'number;'
+    } else if (value.toLowerCase() == 'date') {
+        return 'Date;'
+    } else {
+        return value
     }
 }
