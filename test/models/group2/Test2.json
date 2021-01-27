@@ -1,0 +1,17 @@
+{
+        "push":true,
+        "name":"Test2",
+        "group":"group2",
+        "model": {
+            "id": true,
+    
+            "activeFlag": true
+        },
+        "api": {
+            "get":true,
+            "getID":true,
+            "put":true,
+            "post":true
+        },
+        "seed": {}
+    }

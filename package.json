@@ -21,6 +21,7 @@
   "homepage": "https://github.com/akl47/webapp-cli#readme",
   "dependencies": {
     "arg": "^5.0.0",
-    "esm": "^3.2.25"
+    "esm": "^3.2.25",
+    "inflection": "^1.12.0"
   }
 }
