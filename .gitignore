@@ -1,8 +1,11 @@
-/test/**
-!/test/backend/api/.blank
-!/test/backend/migrations/.blank
-!/test/backend/models/.blank
-!/test/frontend/src/app/.blank
+/test/*
+!/test/backend
+!/test/backend/api
+!/test/backend/migrations
+!/test/backend/models
+!/test/frontend
+!/test/frontend/src
+!/test/frontend/src/app
 !/test/models/*
 
 
