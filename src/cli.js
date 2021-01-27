@@ -74,9 +74,9 @@ function pushModels() {
 
             //Frontend Model
             createFrontendModel(jsonFile)
-            //frontend/src/app/models/group/model.model.ts
             //Frontend Services
-            //frontend/src/app/services/group/model.service.ts
+            //createFrontendServices(jsonFile)
+
             console.groupEnd()
         })
         
@@ -422,6 +422,26 @@ function createFrontendModel(jsonFile) {
     fs.writeFileSync(groupDir+`/${modelName}.model.ts`,model)
     console.log('Frontend Model: Done')
 }
+
+function createFrontendServices(jsonFile) {
+    //frontend/src/app/services/group/model.service.ts
+    const groupName = jsonFile.group
+    const modelName = uncapitalize(jsonFile.name)
+    const ModelName = capitalize(modelName)
+    const ModelNamePlural = inflection.pluralize(ModelName)
+    const modelNamePlural = inflection.pluralize(modelName)
+    const modelObject = jsonFile.model
+
+    /** TODO
+     * Have it read from the same file multiple times
+     * add new models to the import
+     * add all routes at bottom of the file
+     */
+}
+
+
+
+
 function capitalize(str) {
     return str.substring( 0, 1 ).toUpperCase() + str.substring( 1 );
 }
